@@ -13,6 +13,7 @@ import {
   HiOutlineEyeOff,
   HiOutlineCloudUpload,
 } from "react-icons/hi";
+import { SiteDomain } from "@/src/app/(Fronted)/utils/BaseUrl";
 const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -62,7 +63,10 @@ const RegisterForm = () => {
       };
 
       // 4. Send Data to Backend API
-      const response = await axios.post("/api/auth/register", finalPayload);
+      const response = await axios.post(
+        `${SiteDomain}/api/auth/register`,
+        finalPayload,
+      );
 
       if (response.data.success) {
         toast.success("Welcome! Registration Successful 🛍️", {

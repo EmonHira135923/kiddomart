@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react"; // Import signIn
 import {
   HiOutlineMail,
   HiOutlineLockClosed,
@@ -26,18 +27,24 @@ const LoginForm = () => {
   const onSubmit = async (data) => {
     const toastId = toast.loading("Verifying your account...");
     setLoading(true);
+
     try {
-      // API call logic (Example)
-      // const res = await axios.post("/api/auth/login", data);
-
-      console.log("Login Payload:", data);
-      toast.success("Login Successful! Redirecting...", { id: toastId });
-
-      // router.push("/"); // Home page-e redirect korbe
-    } catch (error) {
-      toast.error(error.response?.data?.message || "Invalid credentials", {
-        id: toastId,
+      // NextAuth SignIn function call
+      const res = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false, // Redirect false rakhlam jate amra error handle korte pari
       });
+
+      if (res?.error) {
+        toast.error("Invalid Email or Password", { id: toastId });
+      } else {
+        toast.success("Login Successful! Redirecting...", { id: toastId });
+        router.refresh(); // Session update korar jonno
+        router.push("/"); // Home page-e redirect
+      }
+    } catch (error) {
+      toast.error("Something went wrong. Please try again.", { id: toastId });
     } finally {
       setLoading(false);
     }
@@ -121,10 +128,8 @@ const LoginForm = () => {
         </div>
       </div>
 
-      {/* Social Login Buttons */}
       <SocialButton />
 
-      {/* Footer Link */}
       <p className="text-center text-slate-500 text-[11px] font-bold uppercase tracking-widest mt-6">
         New to KiddoMart?{" "}
         <Link
